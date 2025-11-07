@@ -1,0 +1,10 @@
+^C:\USERS\YOYOY\DOCUMENTS\DEV\SKYBOUND\BUILD\CMAKEFILES\52544E07E8497BBD03261A10D42CEC95\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/yoyoy/Documents/Dev/Skybound -BC:/Users/yoyoy/Documents/Dev/Skybound/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/yoyoy/Documents/Dev/Skybound/build/SkyBound.slnx
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

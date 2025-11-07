@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "C:/Users/yoyoy/Documents/Dev/Skybound/build/_deps/raylib-subbuild/CMakeFiles/raylib-populate"
+		},
+		{
+			"file" : "C:/Users/yoyoy/Documents/Dev/Skybound/build/_deps/raylib-subbuild/CMakeFiles/e38cccf6a43757d311da4227d6c5e997/raylib-populate.rule"
+		},
+		{
+			"file" : "C:/Users/yoyoy/Documents/Dev/Skybound/build/_deps/raylib-subbuild/CMakeFiles/f8f448b8fc9ce4167b7193db34a39d32/raylib-populate-complete.rule"
+		},
+		{
+			"file" : "C:/Users/yoyoy/Documents/Dev/Skybound/build/_deps/raylib-subbuild/CMakeFiles/eea1bd2a3edbd1ca78b233b74b93feb2/raylib-populate-build.rule"
+		},
+		{
+			"file" : "C:/Users/yoyoy/Documents/Dev/Skybound/build/_deps/raylib-subbuild/CMakeFiles/eea1bd2a3edbd1ca78b233b74b93feb2/raylib-populate-configure.rule"
+		},
+		{
+			"file" : "C:/Users/yoyoy/Documents/Dev/Skybound/build/_deps/raylib-subbuild/CMakeFiles/eea1bd2a3edbd1ca78b233b74b93feb2/raylib-populate-download.rule"
+		},
+		{
+			"file" : "C:/Users/yoyoy/Documents/Dev/Skybound/build/_deps/raylib-subbuild/CMakeFiles/eea1bd2a3edbd1ca78b233b74b93feb2/raylib-populate-install.rule"
+		},
+		{
+			"file" : "C:/Users/yoyoy/Documents/Dev/Skybound/build/_deps/raylib-subbuild/CMakeFiles/eea1bd2a3edbd1ca78b233b74b93feb2/raylib-populate-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/yoyoy/Documents/Dev/Skybound/build/_deps/raylib-subbuild/CMakeFiles/eea1bd2a3edbd1ca78b233b74b93feb2/raylib-populate-patch.rule"
+		},
+		{
+			"file" : "C:/Users/yoyoy/Documents/Dev/Skybound/build/_deps/raylib-subbuild/CMakeFiles/eea1bd2a3edbd1ca78b233b74b93feb2/raylib-populate-test.rule"
+		},
+		{
+			"file" : "C:/Users/yoyoy/Documents/Dev/Skybound/build/_deps/raylib-subbuild/CMakeFiles/eea1bd2a3edbd1ca78b233b74b93feb2/raylib-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"raylib-populate"
+		],
+		"name" : "raylib-populate"
+	}
+}

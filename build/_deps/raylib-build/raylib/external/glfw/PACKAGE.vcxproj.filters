@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="18.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\yoyoy\Documents\Dev\Skybound\build\CMakeFiles\6278891387cc1fe5a52a1ea542f20fe9\PACKAGE_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{6CB44F0E-2901-388A-8853-523BEFAA182F}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
