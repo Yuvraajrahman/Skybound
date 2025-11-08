@@ -20,6 +20,11 @@ struct Player
     float speed{180.0f};
     float jumpStrength{320.0f};
     float invincibilityTimer{0.0f};
+    int comboCount{0};
+    int bestCombo{0};
+    float comboTimer{0.0f};
+    float comboWindow{1.25f};
+    int totalCoinsCollected{0};
 };
 
 Rectangle GetPlayerBounds(const Player& player);

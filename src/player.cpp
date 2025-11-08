@@ -17,6 +17,8 @@ void ResetPlayer(Player& player, Vector2 spawnPosition)
     player.velocity = {0.0f, 0.0f};
     player.grounded = false;
     player.invincibilityTimer = 0.0f;
+    player.comboCount = 0;
+    player.comboTimer = 0.0f;
 }
 
 void ApplyPlayerInput(Player& player, const InputState& input, float)
@@ -47,6 +49,7 @@ void UpdatePlayerPhysics(Player& player, float gravity, float dt)
     player.position.x += player.velocity.x * dt;
     player.position.y += player.velocity.y * dt;
     player.invincibilityTimer = std::max(0.0f, player.invincibilityTimer - dt);
+    player.comboTimer = std::max(0.0f, player.comboTimer - dt);
 }
 
 void ResolvePlayerPlatforms(Player& player, const std::vector<Platform>& platforms)

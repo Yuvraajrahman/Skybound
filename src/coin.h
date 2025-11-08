@@ -11,6 +11,6 @@ struct Coin
     bool collected{false};
 };
 
-void CheckCoinCollection(std::vector<Coin>& coins, struct Player& player);
+int CheckCoinCollection(std::vector<Coin>& coins, struct Player& player);
 
 

@@ -5,9 +5,12 @@ SkyBound is a cross-platform 2D platformer written in modern C++ and powered by 
 ## Features
 
 - Responsive player controller with jumping, gravity, and collision resolution.
+- Dynamic HUD with combo tracking, achievements, and time-trial timing.
 - Moving and static platforms, patrolling enemies, and collectible coins.
-- Basic HUD, pause, menu, and game-over screens.
+- Parallax skyline with optional high-contrast palette.
 - Camera tracking with dynamic zoom for extra motion flair.
+- Toggleable accessibility options (large HUD, alternative bindings, high-contrast mode).
+- Optional time-trial mode with best-time tracking.
 - CMake project that fetches raylib automatically (or links against a system install).
 
 ## Repository Layout
@@ -96,6 +99,9 @@ sudo apt install build-essential cmake git libasound2-dev mesa-utils \
 | Jump   | `Space`/`W`/`Up` | Tap center button |
 | Pause  | `P` | Pause button |
 | Restart| `R` | Pause menu button |
+| Settings Overlay | `O` | Add button in UI template |
+| Accessibility Toggles | `F3` (contrast), `F4` (HUD), `F5` (bindings) | Map to UI toggle |
+| Time-Trial Toggle | `T` | UI toggle |
 
 ## Testing Checklist
 

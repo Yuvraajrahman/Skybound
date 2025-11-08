@@ -36,6 +36,8 @@ void UpdateEnemies(std::vector<Enemy>& enemies, Player& player, float dt)
             player.position.y = player.previousPosition.y;
             player.velocity.x = 0.0f;
             player.velocity.y = 0.0f;
+            player.comboCount = 0;
+            player.comboTimer = 0.0f;
         }
     }
 }

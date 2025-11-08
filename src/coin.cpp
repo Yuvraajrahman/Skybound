@@ -1,10 +1,13 @@
 #include "coin.h"
 
+#include <algorithm>
+
 #include "player.h"
 
-void CheckCoinCollection(std::vector<Coin>& coins, Player& player)
+int CheckCoinCollection(std::vector<Coin>& coins, Player& player)
 {
     const Rectangle playerBounds = GetPlayerBounds(player);
+    int collectedThisFrame = 0;
 
     for (Coin& coin : coins)
     {
@@ -19,9 +22,16 @@ void CheckCoinCollection(std::vector<Coin>& coins, Player& player)
         if (CheckCollisionRecs(playerBounds, coinRect))
         {
             coin.collected = true;
-            player.score += 10;
+            ++collectedThisFrame;
+            player.comboCount += 1;
+            player.comboTimer = player.comboWindow;
+            player.bestCombo = std::max(player.bestCombo, player.comboCount);
+            player.totalCoinsCollected += 1;
+
+            const int comboBonus = player.comboCount > 1 ? (player.comboCount - 1) * 5 : 0;
+            player.score += 10 + comboBonus;
         }
     }
+
+    return collectedThisFrame;
 }
-
-
