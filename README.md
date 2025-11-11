@@ -8,6 +8,7 @@ SkyBound is a cross-platform 2D platformer written in modern C++ and powered by 
 - Dynamic HUD with combo tracking, achievements, and time-trial timing.
 - Moving and static platforms, patrolling enemies, and collectible coins.
 - Parallax skyline with optional high-contrast palette.
+- Dynamic weather system (clear, rain, windy, storm) that affects visuals and physics.
 - Camera tracking with dynamic zoom for extra motion flair.
 - Toggleable accessibility options (large HUD, alternative bindings, high-contrast mode).
 - Optional time-trial mode with best-time tracking.
@@ -108,6 +109,7 @@ sudo apt install build-essential cmake git libasound2-dev mesa-utils \
 - Verify player can traverse platforms, collect all coins, and reach new levels.
 - Confirm collisions keep the player grounded without clipping.
 - Ensure pause/resume/Game Over flows behave as expected.
+- Let the weather cycle through rain/wind/storm and confirm wind pushes the player.
 - Target 60 FPS on desktop builds; profile using the built-in frame counter (`DrawFPS`).
 
 ## Next Steps

@@ -30,6 +30,6 @@ struct Player
 Rectangle GetPlayerBounds(const Player& player);
 void ResetPlayer(Player& player, Vector2 spawnPosition);
 void ApplyPlayerInput(Player& player, const InputState& input, float dt);
-void UpdatePlayerPhysics(Player& player, float gravity, float dt);
+void UpdatePlayerPhysics(Player& player, float gravity, float dt, Vector2 externalForce);
 void ResolvePlayerPlatforms(Player& player, const std::vector<Platform>& platforms);
 

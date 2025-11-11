@@ -23,16 +23,23 @@ void ResetPlayer(Player& player, Vector2 spawnPosition)
 
 void ApplyPlayerInput(Player& player, const InputState& input, float)
 {
-    player.velocity.x = 0.0f;
-
-    if (input.moveLeft)
+    if (input.moveLeft || input.moveRight)
     {
-        player.velocity.x -= player.speed;
+        player.velocity.x = 0.0f;
+        if (input.moveLeft)
+        {
+            player.velocity.x -= player.speed;
+        }
+
+        if (input.moveRight)
+        {
+            player.velocity.x += player.speed;
+        }
     }
-
-    if (input.moveRight)
+    else
     {
-        player.velocity.x += player.speed;
+        const float damping = player.grounded ? 0.85f : 0.95f;
+        player.velocity.x *= damping;
     }
 
     if (player.grounded && input.jumpPressed)
@@ -42,9 +49,11 @@ void ApplyPlayerInput(Player& player, const InputState& input, float)
     }
 }
 
-void UpdatePlayerPhysics(Player& player, float gravity, float dt)
+void UpdatePlayerPhysics(Player& player, float gravity, float dt, Vector2 externalForce)
 {
     player.previousPosition = player.position;
+    player.velocity.x += externalForce.x * dt;
+    player.velocity.y += externalForce.y * dt;
     player.velocity.y += gravity * dt;
     player.position.x += player.velocity.x * dt;
     player.position.y += player.velocity.y * dt;

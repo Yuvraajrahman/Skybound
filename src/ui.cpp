@@ -29,6 +29,18 @@ namespace
         std::snprintf(buffer, sizeof(buffer), "%02d:%02d.%02d", minutes, secs, hundredths);
         return buffer;
     }
+
+    const char* WeatherLabel(WeatherType type)
+    {
+        switch (type)
+        {
+            case WeatherType::Clear: return "Clear";
+            case WeatherType::Rain: return "Rain";
+            case WeatherType::Windy: return "Windy";
+            case WeatherType::Storm: return "Storm";
+            default: return "Unknown";
+        }
+    }
 }
 
 void DrawHUD(const Player& player,
@@ -38,7 +50,8 @@ void DrawHUD(const Player& player,
              float timeTrialTimer,
              float bestTimeTrial,
              const AccessibilityOptions& accessibility,
-             const AchievementState& achievements)
+             const AchievementState& achievements,
+             const WeatherState& weather)
 {
     const int baseFont = accessibility.largeHud ? 32 : 24;
     const int smallFont = accessibility.largeHud ? 24 : 18;
@@ -88,6 +101,42 @@ void DrawHUD(const Player& player,
         const int boxY = 40;
         DrawRectangleRounded(Rectangle{static_cast<float>(x), static_cast<float>(boxY), static_cast<float>(boxWidth), static_cast<float>(boxHeight)}, 0.2f, 6, Color{0, 0, 0, 180});
         DrawText(achievements.lastUnlocked.c_str(), x + boxPadding, boxY + boxPadding / 2, baseFont, GOLD);
+    }
+
+    const int screenW = GetScreenWidth();
+    int infoX = screenW - (accessibility.largeHud ? 300 : 240);
+    int infoY = 20;
+    DrawText(TextFormat("Weather: %s", WeatherLabel(weather.current)),
+             infoX,
+             infoY,
+             baseFont - 2,
+             RAYWHITE);
+    infoY += baseFont;
+
+    DrawText(TextFormat("Wind %+0.1f", weather.windCurrent),
+             infoX,
+             infoY,
+             smallFont,
+             LIGHTGRAY);
+    infoY += smallFont + 6;
+
+    if (weather.rainIntensity > 0.05f)
+    {
+        DrawText(TextFormat("Rain %d%%", static_cast<int>(weather.rainIntensity * 100.0f)),
+                 infoX,
+                 infoY,
+                 smallFont,
+                 SKYBLUE);
+        infoY += smallFont + 6;
+    }
+
+    if (weather.lightningFlashTimer > 0.0f && weather.current == WeatherType::Storm)
+    {
+        DrawText("Lightning!",
+                 infoX,
+                 infoY,
+                 smallFont,
+                 YELLOW);
     }
 }
 

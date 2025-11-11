@@ -20,6 +20,21 @@ enum class GameState
     GameOver
 };
 
+enum class WeatherType
+{
+    Clear,
+    Rain,
+    Windy,
+    Storm
+};
+
+struct RainDrop
+{
+    Vector2 position{};
+    float length{18.0f};
+    float speed{600.0f};
+};
+
 struct ParallaxLayer
 {
     float scrollFactor{0.0f};
@@ -45,6 +60,21 @@ struct AchievementState
     float notificationTimer{0.0f};
 };
 
+struct WeatherState
+{
+    WeatherType current{WeatherType::Clear};
+    float timeUntilChange{0.0f};
+    float rainIntensity{0.0f};
+    float baseWind{0.0f};
+    float windVariance{0.0f};
+    float windCurrent{0.0f};
+    float windTarget{0.0f};
+    float windChangeTimer{0.0f};
+    float lightningCooldown{0.0f};
+    float lightningFlashTimer{0.0f};
+    std::vector<RainDrop> rainDrops{};
+};
+
 class Game
 {
 public:
@@ -64,10 +94,15 @@ private:
     void DrawGameOver() const;
     void DrawSettingsOverlay() const;
     void DrawBackground() const;
+    void DrawWeather() const;
     void ResetLevel();
     void UpdateCamera();
     void InitParallax();
     void UpdateParallaxPalette();
+    void InitWeather();
+    void SetWeather(WeatherType type);
+    void UpdateWeather(float dt);
+    Vector2 GetWeatherForce() const;
     void HandleInputToggles();
     void UpdateComboTimer();
     void UpdateAchievements(int coinsCollected, float dt);
@@ -96,6 +131,7 @@ private:
     float timeTrialTimer{0.0f};
     float bestTimeTrial{0.0f};
     bool hasBestTime{false};
+    WeatherState weather{};
 };
 
 

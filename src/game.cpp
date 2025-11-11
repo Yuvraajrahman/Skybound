@@ -23,6 +23,8 @@ namespace
 
     constexpr float ACHIEVEMENT_DISPLAY_TIME = 3.5f;
     constexpr float FIXED_STEP = 1.0f / 120.0f;
+    constexpr int RAIN_DROP_COUNT = 180;
+    constexpr float LIGHTNING_FLASH_DURATION = 0.3f;
 }
 
 Game::Game()
@@ -45,6 +47,7 @@ void Game::Init()
     inputBindings = MakeDefaultBindings();
     InitParallax();
     UpdateParallaxPalette();
+    InitWeather();
 
     camera.target = {0.0f, 0.0f};
     camera.offset = {static_cast<float>(screenWidth) / 2.0f, static_cast<float>(screenHeight) / 2.0f};
@@ -109,6 +112,7 @@ void Game::Run()
 
 void Game::Update(float dt)
 {
+    UpdateWeather(dt);
     HandleInputToggles();
 
     switch (state)
@@ -135,7 +139,8 @@ void Game::Update(float dt)
             UpdatePlatforms(platforms, dt);
 
             ApplyPlayerInput(player, inputState, dt);
-            UpdatePlayerPhysics(player, gravity, dt);
+            const Vector2 weatherForce = GetWeatherForce();
+            UpdatePlayerPhysics(player, gravity, dt, weatherForce);
             ResolvePlayerPlatforms(player, platforms);
 
             UpdateEnemies(enemies, player, dt);
@@ -259,6 +264,8 @@ void Game::DrawGameplay() const
 
     EndMode2D();
 
+    DrawWeather();
+
     DrawHUD(player,
             currentLevel,
             timeTrialMode,
@@ -266,11 +273,13 @@ void Game::DrawGameplay() const
             timeTrialTimer,
             hasBestTime ? bestTimeTrial : -1.0f,
             accessibility,
-            achievements);
+            achievements,
+            weather);
 }
 
 void Game::DrawMenu() const
 {
+    DrawWeather();
     DrawMenuScreen({static_cast<float>(screenWidth), static_cast<float>(screenHeight)}, timeTrialMode);
 }
 
@@ -328,6 +337,44 @@ void Game::DrawSettingsOverlay() const
     textY += fontSize + 30;
 
     DrawText("Press O to close settings.", margin + 40, textY, fontSize - 8, LIGHTGRAY);
+}
+
+void Game::DrawWeather() const
+{
+    if (weather.rainIntensity > 0.05f && !weather.rainDrops.empty())
+    {
+        const unsigned char alpha = static_cast<unsigned char>(std::clamp(140.0f + weather.rainIntensity * 60.0f, 80.0f, 220.0f));
+        const Color rainColor = accessibility.highContrast ? Color{200, 200, 200, alpha} : Color{120, 160, 255, alpha};
+        const float windOffset = weather.windCurrent * 0.02f;
+        for (const RainDrop& drop : weather.rainDrops)
+        {
+            const Vector2 start{drop.position.x, drop.position.y};
+            const Vector2 end{drop.position.x + windOffset * drop.length, drop.position.y + drop.length};
+            DrawLineEx(start, end, accessibility.largeHud ? 2.0f : 1.5f, rainColor);
+        }
+    }
+
+    if (weather.lightningFlashTimer > 0.0f)
+    {
+        float t = weather.lightningFlashTimer / LIGHTNING_FLASH_DURATION;
+        t = std::clamp(t, 0.0f, 1.0f);
+        const unsigned char alpha = static_cast<unsigned char>(255.0f * t);
+        DrawRectangle(0, 0, screenWidth, screenHeight, Color{255, 255, 255, alpha});
+    }
+
+    if ((weather.current == WeatherType::Windy || weather.current == WeatherType::Storm) &&
+        (state == GameState::Playing || state == GameState::Paused))
+    {
+        const float wind = weather.windCurrent;
+        const int baseX = 40;
+        const int baseY = screenHeight - 60;
+        const Color arrowColor = accessibility.highContrast ? Color{230, 230, 230, 160} : Color{170, 200, 255, 160};
+        DrawLineEx({static_cast<float>(baseX), static_cast<float>(baseY)},
+                   {static_cast<float>(baseX + wind * 0.4f), static_cast<float>(baseY - 10.0f)},
+                   2.5f,
+                   arrowColor);
+        DrawCircle(baseX, baseY, 4.0f, arrowColor);
+    }
 }
 
 void Game::DrawBackground() const
@@ -431,6 +478,196 @@ void Game::UpdateParallaxPalette()
     {
         InitParallax();
     }
+}
+
+void Game::InitWeather()
+{
+    weather.rainDrops.clear();
+    weather.rainDrops.resize(RAIN_DROP_COUNT);
+
+    const int width = screenWidth;
+    const int height = screenHeight;
+
+    for (RainDrop& drop : weather.rainDrops)
+    {
+        drop.position = {
+            static_cast<float>(GetRandomValue(-width / 4, width + width / 4)),
+            static_cast<float>(GetRandomValue(-height, height))
+        };
+        drop.length = 14.0f + static_cast<float>(GetRandomValue(0, 10));
+        drop.speed = 500.0f + static_cast<float>(GetRandomValue(-120, 160));
+    }
+
+    weather.windCurrent = 0.0f;
+    weather.windTarget = 0.0f;
+    weather.baseWind = 0.0f;
+    weather.windVariance = 20.0f;
+    weather.windChangeTimer = 0.0f;
+    weather.lightningFlashTimer = 0.0f;
+    weather.lightningCooldown = 0.0f;
+    SetWeather(WeatherType::Clear);
+}
+
+void Game::SetWeather(WeatherType type)
+{
+    weather.current = type;
+
+    switch (type)
+    {
+        case WeatherType::Clear:
+            weather.rainIntensity = 0.0f;
+            weather.baseWind = 0.0f;
+            weather.windVariance = 35.0f;
+            weather.timeUntilChange = static_cast<float>(GetRandomValue(18, 28));
+            weather.lightningCooldown = 0.0f;
+            break;
+        case WeatherType::Rain:
+            weather.rainIntensity = 0.85f;
+            weather.baseWind = static_cast<float>(GetRandomValue(-30, 30));
+            weather.windVariance = 70.0f;
+            weather.timeUntilChange = static_cast<float>(GetRandomValue(24, 34));
+            weather.lightningCooldown = 0.0f;
+            break;
+        case WeatherType::Windy:
+            weather.rainIntensity = 0.0f;
+            weather.baseWind = static_cast<float>(GetRandomValue(-90, 90));
+            weather.windVariance = 90.0f;
+            weather.timeUntilChange = static_cast<float>(GetRandomValue(20, 30));
+            weather.lightningCooldown = 0.0f;
+            break;
+        case WeatherType::Storm:
+            weather.rainIntensity = 1.25f;
+            weather.baseWind = static_cast<float>(GetRandomValue(-110, 110));
+            weather.windVariance = 120.0f;
+            weather.timeUntilChange = static_cast<float>(GetRandomValue(22, 32));
+            weather.lightningCooldown = static_cast<float>(GetRandomValue(4, 9));
+            break;
+    }
+
+    weather.windTarget = weather.baseWind;
+    weather.windChangeTimer = static_cast<float>(GetRandomValue(2, 5));
+}
+
+void Game::UpdateWeather(float dt)
+{
+    if (weather.rainDrops.empty())
+    {
+        InitWeather();
+    }
+
+    weather.timeUntilChange -= dt;
+    if (weather.timeUntilChange <= 0.0f)
+    {
+        int roll = GetRandomValue(0, 99);
+        WeatherType next = WeatherType::Clear;
+        if (roll < 40)
+        {
+            next = WeatherType::Clear;
+        }
+        else if (roll < 70)
+        {
+            next = WeatherType::Rain;
+        }
+        else if (roll < 90)
+        {
+            next = WeatherType::Windy;
+        }
+        else
+        {
+            next = WeatherType::Storm;
+        }
+
+        if (next == weather.current)
+        {
+            next = static_cast<WeatherType>((static_cast<int>(weather.current) + 1) % 4);
+        }
+
+        SetWeather(next);
+    }
+
+    weather.windChangeTimer -= dt;
+    if (weather.windChangeTimer <= 0.0f)
+    {
+        weather.windTarget = weather.baseWind + static_cast<float>(GetRandomValue(-100, 100)) * (weather.windVariance / 100.0f);
+        weather.windChangeTimer = static_cast<float>(GetRandomValue(2, 6));
+    }
+
+    const float windDiff = weather.windTarget - weather.windCurrent;
+    weather.windCurrent += windDiff * std::clamp(dt * 1.5f, 0.0f, 1.0f);
+
+    if (weather.lightningFlashTimer > 0.0f)
+    {
+        weather.lightningFlashTimer = std::max(0.0f, weather.lightningFlashTimer - dt);
+    }
+
+    if (weather.current == WeatherType::Storm)
+    {
+        weather.lightningCooldown -= dt;
+        if (weather.lightningCooldown <= 0.0f)
+        {
+            weather.lightningFlashTimer = LIGHTNING_FLASH_DURATION;
+            weather.lightningCooldown = static_cast<float>(GetRandomValue(5, 11));
+        }
+    }
+
+    const float width = static_cast<float>(GetScreenWidth());
+    const float height = static_cast<float>(GetScreenHeight());
+
+    if (weather.rainIntensity > 0.05f)
+    {
+        for (RainDrop& drop : weather.rainDrops)
+        {
+            drop.position.x += weather.windCurrent * 0.15f * dt;
+            drop.position.y += drop.speed * (1.0f + weather.rainIntensity) * dt;
+
+            if (drop.position.y - drop.length > height)
+            {
+                drop.position.y = static_cast<float>(GetRandomValue(-static_cast<int>(height), 0));
+                drop.position.x = static_cast<float>(GetRandomValue(-static_cast<int>(width) / 4, static_cast<int>(width) + static_cast<int>(width) / 4));
+                drop.speed = 500.0f + static_cast<float>(GetRandomValue(-120, 150));
+                drop.length = 14.0f + static_cast<float>(GetRandomValue(0, 12));
+            }
+
+            const float wrapRange = width * 0.4f;
+            if (drop.position.x < -wrapRange)
+            {
+                drop.position.x += width + wrapRange * 2.0f;
+            }
+            else if (drop.position.x > width + wrapRange)
+            {
+                drop.position.x -= width + wrapRange * 2.0f;
+            }
+        }
+    }
+    else
+    {
+        // subtly drift raindrops even when not raining to keep animation fresh
+        for (RainDrop& drop : weather.rainDrops)
+        {
+            drop.position.y += drop.speed * 0.25f * dt;
+            if (drop.position.y > height)
+            {
+                drop.position.y = static_cast<float>(GetRandomValue(-static_cast<int>(height), 0));
+                drop.position.x = static_cast<float>(GetRandomValue(0, static_cast<int>(width)));
+            }
+        }
+    }
+}
+
+Vector2 Game::GetWeatherForce() const
+{
+    Vector2 force{weather.windCurrent, 0.0f};
+
+    if (weather.current == WeatherType::Storm)
+    {
+        force.y = 50.0f;
+    }
+    else if (weather.current == WeatherType::Rain)
+    {
+        force.y = 20.0f;
+    }
+
+    return force;
 }
 
 void Game::HandleInputToggles()
